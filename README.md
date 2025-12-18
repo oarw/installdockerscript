@@ -16,6 +16,15 @@
 
 ### 使用方法
 
+0) 你也可以直接从 raw 链接下载自动识别脚本（Debian/Ubuntu）：
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/oarw/installdockerscript/refs/heads/main/install-docker.sh" -o install-docker.sh
+# 或者：
+wget -O install-docker.sh "https://raw.githubusercontent.com/oarw/installdockerscript/refs/heads/main/install-docker.sh"
+chmod +x install-docker.sh
+```
+
 1) 下载/拷贝脚本到机器后赋权：
 
 ```bash
