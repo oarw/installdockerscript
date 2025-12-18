@@ -9,12 +9,13 @@ set -euo pipefail
 #   sudo bash install-docker-debian.sh
 #
 # Options:
-#   --skip-hello-world    Skip running "docker run hello-world" after install
+#   --hello-world         Run "docker run hello-world" after install (default: skip)
+#   --skip-hello-world    Skip running "docker run hello-world" after install (default)
 #   --no-group            Skip adding the current user to the "docker" group
 #   --help                Show help
 #
 
-SKIP_HELLO_WORLD=0
+SKIP_HELLO_WORLD=1
 NO_GROUP=0
 
 usage() {
@@ -22,10 +23,11 @@ usage() {
 自动安装 Docker Engine（Debian / apt 仓库方式）
 
 用法：
-  sudo bash install-docker-debian.sh [--skip-hello-world] [--no-group]
+  sudo bash install-docker-debian.sh [--hello-world] [--no-group]
 
 选项：
-  --skip-hello-world    安装后不运行 hello-world 验证
+  --hello-world         安装后运行 hello-world 验证（默认跳过）
+  --skip-hello-world    跳过 hello-world 验证（默认）
   --no-group            不把当前用户加入 docker 组
   --help                显示帮助
 EOF
@@ -33,6 +35,7 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --hello-world) SKIP_HELLO_WORLD=0; shift ;;
     --skip-hello-world) SKIP_HELLO_WORLD=1; shift ;;
     --no-group) NO_GROUP=1; shift ;;
     --help|-h) usage; exit 0 ;;

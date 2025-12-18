@@ -11,13 +11,14 @@ set -euo pipefail
 #   sudo bash install-docker.sh
 #
 # Options:
-#   --skip-hello-world        Skip running "docker run hello-world" after install
+#   --hello-world             Run "docker run hello-world" after install (default: skip)
+#   --skip-hello-world        Skip running "docker run hello-world" after install (default)
 #   --no-group                Skip adding the current user to the "docker" group
 #   --codename <name>         Override distro codename used in docker.sources (useful for derivatives)
 #   --help                    Show help
 #
 
-SKIP_HELLO_WORLD=0
+SKIP_HELLO_WORLD=1
 NO_GROUP=0
 CODENAME_OVERRIDE=""
 
@@ -26,10 +27,11 @@ usage() {
 自动安装 Docker Engine（自动识别 Debian / Ubuntu，使用官方 apt 仓库）
 
 用法：
-  sudo bash install-docker.sh [--skip-hello-world] [--no-group] [--codename <name>]
+  sudo bash install-docker.sh [--hello-world] [--no-group] [--codename <name>]
 
 选项：
-  --skip-hello-world        安装后不运行 hello-world 验证
+  --hello-world             安装后运行 hello-world 验证（默认跳过）
+  --skip-hello-world        跳过 hello-world 验证（默认）
   --no-group                不把当前用户加入 docker 组
   --codename <name>         覆盖系统 codename（衍生发行版可能需要）
   --help                    显示帮助
@@ -38,6 +40,7 @@ EOF
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --hello-world) SKIP_HELLO_WORLD=0; shift ;;
     --skip-hello-world) SKIP_HELLO_WORLD=1; shift ;;
     --no-group) NO_GROUP=1; shift ;;
     --codename)
