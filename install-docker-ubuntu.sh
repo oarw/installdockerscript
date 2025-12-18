@@ -2,11 +2,11 @@
 set -euo pipefail
 
 #
-# Install Docker Engine on Debian using Docker's official apt repository.
-# Docs: https://docs.docker.com/engine/install/debian/
+# Install Docker Engine on Ubuntu using Docker's official apt repository.
+# Docs: https://docs.docker.com/engine/install/ubuntu/
 #
 # Usage:
-#   sudo bash install-docker-debian.sh
+#   sudo bash install-docker-ubuntu.sh
 #
 # Options:
 #   --skip-hello-world    Skip running "docker run hello-world" after install
@@ -19,10 +19,10 @@ NO_GROUP=0
 
 usage() {
   cat <<'EOF'
-自动安装 Docker Engine（Debian / apt 仓库方式）
+自动安装 Docker Engine（Ubuntu / apt 仓库方式）
 
 用法：
-  sudo bash install-docker-debian.sh [--skip-hello-world] [--no-group]
+  sudo bash install-docker-ubuntu.sh [--skip-hello-world] [--no-group]
 
 选项：
   --skip-hello-world    安装后不运行 hello-world 验证
@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
-  echo "请使用 root 权限运行：sudo bash install-docker-debian.sh" >&2
+  echo "请使用 root 权限运行：sudo bash install-docker-ubuntu.sh" >&2
   exit 1
 fi
 
@@ -53,18 +53,19 @@ fi
 # shellcheck disable=SC1091
 . /etc/os-release
 
-if [[ "${ID:-}" != "debian" ]]; then
-  echo "检测到 ID=${ID:-unknown}。本脚本仅面向 Debian（非 Ubuntu）。" >&2
+if [[ "${ID:-}" != "ubuntu" ]]; then
+  echo "检测到 ID=${ID:-unknown}。本脚本仅面向 Ubuntu。" >&2
   exit 1
 fi
 
-CODENAME="${VERSION_CODENAME:-}"
+# Ubuntu 文档的 Suites 写法：优先 UBUNTU_CODENAME，否则回退 VERSION_CODENAME
+CODENAME="${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"
 if [[ -z "$CODENAME" ]]; then
-  echo "无法从 /etc/os-release 解析 VERSION_CODENAME（Debian codename）。" >&2
+  echo "无法从 /etc/os-release 解析 UBUNTU_CODENAME/VERSION_CODENAME（Ubuntu codename）。" >&2
   exit 1
 fi
 
-echo "Debian codename: $CODENAME"
+echo "Ubuntu codename: $CODENAME"
 
 echo "1) 卸载可能冲突的旧包（如果存在）..."
 export DEBIAN_FRONTEND=noninteractive
@@ -76,13 +77,13 @@ apt-get install -y ca-certificates curl
 
 echo "3) 配置 Docker 官方 GPG keyring..."
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
 
 echo "4) 配置 Docker apt 仓库（deb822: /etc/apt/sources.list.d/docker.sources）..."
 cat >/etc/apt/sources.list.d/docker.sources <<EOF
 Types: deb
-URIs: https://download.docker.com/linux/debian
+URIs: https://download.docker.com/linux/ubuntu
 Suites: ${CODENAME}
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
@@ -100,7 +101,6 @@ else
 fi
 
 if [[ "$NO_GROUP" -eq 0 ]]; then
-  # Best-effort: add invoking user to docker group (works when invoked via sudo).
   INVOKING_USER="${SUDO_USER:-}"
   if [[ -n "$INVOKING_USER" && "$INVOKING_USER" != "root" ]]; then
     echo "7) 将用户加入 docker 组：$INVOKING_USER"
